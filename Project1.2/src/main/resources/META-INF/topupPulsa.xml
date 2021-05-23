@@ -1,0 +1,162 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="topupPulsa">
+
+    <!--Untuk Username Pelanggan -->
+    <!--Memasukan data ke tabel registrasi saat registrasi-->
+    <insert id = "insertUser" parameterType = "com.topup.database.model.user.User">
+        INSERT INTO registrasi (nama, email, phone, address, password, username, verifcode, status) VALUES (#{name}, #{email}, #{phone}, #{address}, #{password}, #{username}, #{verifcode}, #{statusVerif});
+    </insert>
+
+    <resultMap id="resultUser" type="com.topup.database.model.user.User">
+        <result property="username" column="username"/>
+    </resultMap>
+    <select id="getUsernameLogin" resultMap="resultUser">
+        SELECT * FROM user_login WHERE username=#{username};
+    </select>
+
+    <!--Memasukan data ke tabel user_login saat registrasi-->
+    <insert id = "insertLogin" parameterType = "map">
+        INSERT INTO user_login (code, username, password) VALUES (#{code}, #{username}, #{password});
+    </insert>
+
+    <!-- Memasukkan data ke tabel user saat registrasi -->
+    <insert id = "insertFix" parameterType="com.topup.database.model.user.User">
+        INSERT INTO user (code, username, phone, email, wallet) VALUES (#{code}, #{username}, #{phone}, #{email}, #{wallet});
+    </insert>
+    <insert id="insertVerifCode" parameterType="com.topup.database.model.user.User">
+        INSERT INTO registrasi (verifikasi, status) VALUES (#{verifcode}, #{statusVerif});
+    </insert>
+
+    <update id="updateWallet" parameterType="com.topup.database.model.user.User">
+        UPDATE user SET wallet=#{wallet} WHERE username=#{username};
+    </update>
+
+    <!--Mencari username pelanggan dengan password-->
+    <select id="getId" parameterType = "com.topup.database.model.user.User" resultType="String">
+        SELECT code FROM registrasi WHERE email = #{email} AND nama=#{name} AND phone=#{phone};
+    </select>
+<!--    <resultMap id="findRegisterByVerCode" type="com.topup.database.model.user.User">-->
+<!--        <result property="verifcode" column="verifikasi"/>-->
+<!--    </resultMap>-->
+<!--    <select id="getDataByVerifyCode" parameterType = "findRegisterByVerCode">-->
+<!--        SELECT * FROM registrasi WHERE verifikasi=#{verifcode};-->
+<!--    </select>-->
+    <resultMap id="resultVerifCode" type="com.topup.database.model.user.User">
+        <result property="verifcode" column="verifcode"/>
+    </resultMap>
+    <select id="findRegisterByVerCode" resultMap="resultVerifCode">
+        SELECT * FROM registrasi WHERE verifcode=#{verifcode};
+    </select>
+
+    <select id="getUsername" parameterType = "com.topup.database.model.user.User" resultType="String">
+        SELECT username FROM user_login WHERE code=#{code} AND password=#{password};
+    </select>
+    
+    <update id="updateStatusRegistrasi" parameterType="com.topup.database.model.user.User">
+        UPDATE registrasi SET status = #{statusVerif};
+    </update>
+
+<!--    <select id="getUsernameOrder" parameterType="com.topup.database.model.order.Order" resultType="String"> -->
+<!--        SELECT * FROM registrasi WHERE username = #{username}; -->
+<!--    </select> -->
+
+    <!-- Untuk Provider  -->
+    <!-- Menampilkan Data Provider -->
+
+    <resultMap id = "result" type = "com.topup.provider.model.Provider">
+        <result property = "code" column = "code"/>
+    </resultMap>
+    <select id = "getCode" resultMap="result">
+        SELECT * FROM provider1 WHERE code=#{code};
+    </select>
+    <select id = "getCodeFromProviderDB" resultMap="result">
+        SELECT * FROM dbprovider WHERE code=#{code};
+    </select>
+
+    <resultMap id = "result2" type = "com.topup.provider2.model.Provider2">
+        <result property = "code" column = "code"/>
+    </resultMap>
+    <select id = "getCode2" resultMap="result2">
+        SELECT * FROM provider2 WHERE code=#{code};
+    </select>
+    <select id = "getCodeFromProvider2DB" resultMap="result2">
+        SELECT * FROM dbprovider2 WHERE code=#{code};
+    </select>
+
+
+    <resultMap id = "resultAll" type = "com.topup.provider.model.Provider">
+        <result property = "code" column = "code"/>
+        <result property = "pulsa" column = "pulsa"/>
+        <result property = "harga" column = "harga"/>
+    </resultMap>
+    <select id = "getAll" resultMap = "resultAll">
+        SELECT * FROM provider1;
+    </select>
+
+    <resultMap id = "resultAll2" type = "com.topup.provider2.model.Provider2">
+        <result property = "code" column = "code"/>
+        <result property = "pulsa" column = "pulsa"/>
+        <result property = "harga" column = "harga"/>
+    </resultMap>
+    <select id = "getAll2" resultMap = "resultAll2">
+        SELECT * FROM provider2;
+    </select>
+
+    <update id="updateCount" parameterType="com.topup.provider2.model.Provider2">
+        UPDATE dbprovider SET terjual = #{terjual} WHERE code = #{code};
+    </update>
+    <update id="updateCount2" parameterType="com.topup.provider2.model.Provider2">
+        UPDATE dbprovider2 SET terjual = #{terjual} WHERE code = #{code};
+    </update>
+
+<!--    <insert id = "insertCount" parameterType="com.topup.provider.model.Provider">-->
+<!--        INSERT INTO dbprovider (terjual) VALUES (#{terjual}) WHERE code=#{code};-->
+<!--    </insert>-->
+
+    <!-- Untuk Order Produk -->
+    <!-- Input ke dalam Tabel Order-->
+
+    <!-- Input Username, Phone, Code-->
+<!--    <insert id = "insertOrder1" parameterType="map">-->
+<!--        INSERT INTO order (code, username, phone) VALUES (#{code}, #{username}, #{phone});-->
+<!--    </insert>-->
+
+    <insert id = "insertOrder" parameterType="com.topup.database.model.order.Order">
+        INSERT INTO pesanan (code, username, phone, metode, produk, tagihan, status) VALUES (#{code}, #{username}, #{phone}, #{metode}, #{produk}, #{tagihan}, #{status});
+    </insert>
+
+    <select id="getOrderCode" parameterType = "com.topup.database.model.order.Order" resultType="String">
+        SELECT code FROM pesanan WHERE username=#{username} AND phone=#{phone} AND metode=#{metode} AND produk=#{produk} AND tagihan=#{tagihan} AND status=#{status};
+    </select>
+
+    <resultMap id = "resultOrderCode" type = "com.topup.database.model.order.Order">
+        <result property = "code" column = "code"/>
+    </resultMap>
+    <select id="findByOrder" resultMap="resultOrderCode">
+        SELECT * FROM pesanan WHERE code=#{code};
+    </select>
+
+   <resultMap id="resultOrderUsername" type="com.topup.database.model.user.User">
+        <result property="username" column="username"/>
+   </resultMap>
+    <select id="findByUsername" resultMap="resultOrderUsername">
+        SELECT * FROM user WHERE username=#{username};
+    </select>
+
+    <update id="updatePrice" parameterType="com.topup.database.model.order.Order">
+        UPDATE pesanan SET tagihan = #{tagihan} WHERE code = #{code};
+    </update>
+
+    <update id="updateStatus" parameterType="com.topup.database.model.order.Order">
+        UPDATE pesanan SET status = #{status} WHERE code = #{code};
+    </update>
+
+    <!-- Untuk Bank -->
+    <insert id="inputBank" parameterType="com.topup.bank.model.Bank">
+        INSERT INTO transaksi (transfer_code, status) VALUES (#{transfer_code}, #{status});
+    </insert>
+
+</mapper>
